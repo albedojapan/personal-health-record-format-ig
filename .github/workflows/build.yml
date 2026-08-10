@@ -29,9 +29,11 @@ jobs:
           ssh-private-key: ${{ secrets.TEST_SSH_PRIVATE_KEY }}
 
       - name: Deploy to test server
+        env:
+          SSH_PORT: 8022
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H "${{ secrets.TEST_SSH_HOST }}" >> ~/.ssh/known_hosts
+          ssh-keyscan -p "$SSH_PORT" -H "${{ secrets.TEST_SSH_HOST }}" >> ~/.ssh/known_hosts
           rsync -avz --no-perms --no-owner --no-group \
-            -e "ssh -o StrictHostKeyChecking=yes" \
+            -e "ssh -p $SSH_PORT -o StrictHostKeyChecking=yes" \
             ./output/ "${{ secrets.TEST_SSH_USER }}@${{ secrets.TEST_SSH_HOST }}:${{ secrets.TEST_DEPLOY_PATH }}/"
